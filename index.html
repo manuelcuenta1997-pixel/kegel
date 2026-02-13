@@ -1,0 +1,1388 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="color-scheme" content="dark" />
+
+  <!-- iOS "Add to Home Screen" -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Kegel" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <title>Kegel Clínico · 6 semanas</title>
+
+  <!-- Single-file icons (SVG data URIs). iOS may prefer PNG; this is best-effort in a single file. -->
+  <link rel="icon" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"%3E%3Cdefs%3E%3CradialGradient id="g" cx="50%25" cy="35%25" r="70%25"%3E%3Cstop offset="0%25" stop-color="%2322c55e"/%3E%3Cstop offset="55%25" stop-color="%230ea5e9"/%3E%3Cstop offset="100%25" stop-color="%23f97316"/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width="128" height="128" rx="28" fill="%23000"/%3E%3Ccircle cx="64" cy="64" r="44" fill="url(%23g)" opacity=".92"/%3E%3Cpath d="M44 70c8 12 32 12 40 0" stroke="%23fff" stroke-width="6" stroke-linecap="round" fill="none" opacity=".85"/%3E%3Cpath d="M52 50h24" stroke="%23fff" stroke-width="6" stroke-linecap="round" opacity=".85"/%3E%3C/svg%3E' />
+  <link rel="apple-touch-icon" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"%3E%3Cdefs%3E%3CradialGradient id="g" cx="50%25" cy="35%25" r="70%25"%3E%3Cstop offset="0%25" stop-color="%2322c55e"/%3E%3Cstop offset="55%25" stop-color="%230ea5e9"/%3E%3Cstop offset="100%25" stop-color="%23f97316"/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width="180" height="180" rx="40" fill="%23000"/%3E%3Ccircle cx="90" cy="90" r="62" fill="url(%23g)" opacity=".92"/%3E%3Cpath d="M62 100c12 18 44 18 56 0" stroke="%23fff" stroke-width="8" stroke-linecap="round" fill="none" opacity=".85"/%3E%3Cpath d="M72 70h36" stroke="%23fff" stroke-width="8" stroke-linecap="round" opacity=".85"/%3E%3C/svg%3E' />
+
+  <!-- Manifest (best-effort single file). -->
+  <link id="manifestLink" rel="manifest" href="" />
+
+  <style>
+    :root{
+      --bg:#000000; /* OLED */
+      --panel:#0b0b0d;
+      --panel2:#111115;
+      --text:#f5f5f7;
+      --muted:#a1a1aa;
+      --muted2:#71717a;
+      --border:rgba(255,255,255,.08);
+      --shadow:0 12px 40px rgba(0,0,0,.55);
+
+      --green:#22c55e;
+      --blue:#0ea5e9;
+      --orange:#f97316;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+
+      --ring: rgba(255,255,255,.12);
+      --ring2: rgba(255,255,255,.06);
+
+      --safeAreaTop: env(safe-area-inset-top);
+      --safeAreaBottom: env(safe-area-inset-bottom);
+
+      --progress: 0; /* 0..1 for conic ring */
+      --stateColor: var(--blue);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 40% -20%, rgba(14,165,233,.18), transparent 55%),
+                  radial-gradient(900px 700px at 100% 20%, rgba(249,115,22,.14), transparent 60%),
+                  radial-gradient(900px 700px at 0% 70%, rgba(34,197,94,.12), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x:hidden;
+    }
+
+    .app{
+      min-height:100%;
+      padding: calc(var(--safeAreaTop) + 14px) 16px calc(var(--safeAreaBottom) + 16px);
+      max-width: 520px;
+      margin: 0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 6px 2px;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      line-height:1.1;
+    }
+    .brand .title{
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .brand .subtitle{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .topActions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .iconBtn{
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      display:grid;
+      place-items:center;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .iconBtn:active{ transform: scale(.98); }
+    .iconBtn svg{ opacity:.95; }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardInner{ padding: 14px; }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+
+    .stat{
+      padding:12px;
+      border-radius: 16px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.35);
+    }
+    .stat .k{
+      font-size:12px;
+      color: var(--muted);
+      margin-bottom:6px;
+    }
+    .stat .v{
+      font-size:16px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .stat .s{
+      margin-top:6px;
+      font-size:12px;
+      color: var(--muted2);
+    }
+
+    .alert{
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(239,68,68,.35);
+      background: rgba(239,68,68,.10);
+      color: #fecaca;
+      display:none;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .alert.show{ display:flex; }
+    .alert .aTitle{
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .alert .aText{
+      font-size:13px;
+      color:#fecaca;
+      opacity:.95;
+      margin-top:2px;
+      line-height:1.35;
+    }
+
+    .center{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 12px;
+      padding: 16px 14px 14px;
+      text-align:center;
+    }
+
+    .posture{
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: .8px;
+    }
+    .posture small{
+      display:block;
+      margin-top:4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing:.2px;
+      text-transform:none;
+    }
+
+    .circleWrap{
+      width: 270px;
+      height: 270px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      position:relative;
+      margin-top: 2px;
+      background:
+        conic-gradient(var(--stateColor) calc(var(--progress) * 1turn), var(--ring2) 0),
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,.08), transparent 65%),
+        rgba(0,0,0,.35);
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(0,0,0,.65);
+    }
+
+    .circle{
+      width: 215px;
+      height: 215px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 40% 30%, rgba(255,255,255,.14), transparent 55%),
+                  rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap: 6px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .circle::before{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.12), transparent 58%);
+      filter: blur(6px);
+      opacity:.7;
+      transform: rotate(15deg);
+    }
+
+    .circle .label{
+      position:relative;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,.85);
+      text-transform: uppercase;
+    }
+    .circle .timer{
+      position:relative;
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+    .circle .hint{
+      position:relative;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .statePill{
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255,255,255,.92);
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.35);
+    }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      width: 100%;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top: 6px;
+    }
+
+    button{
+      font-family: inherit;
+    }
+    .btn{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 800;
+      letter-spacing: .2px;
+      cursor:pointer;
+      min-width: 160px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 8px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active{ transform: scale(.99); }
+    .btn[disabled]{ opacity:.45; cursor:not-allowed; transform:none; }
+
+    .btnPrimary{
+      background: linear-gradient(180deg, rgba(14,165,233,.22), rgba(14,165,233,.08));
+      border-color: rgba(14,165,233,.35);
+    }
+    .btnDanger{
+      background: linear-gradient(180deg, rgba(239,68,68,.22), rgba(239,68,68,.08));
+      border-color: rgba(239,68,68,.35);
+    }
+    .btnGhost{
+      background: rgba(255,255,255,.03);
+      min-width: 120px;
+      padding: 12px 12px;
+    }
+
+    .sectionTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,.25);
+    }
+    .sectionTitle .st{
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .3px;
+    }
+    .sectionTitle .meta{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .details{
+      padding: 12px 14px 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+
+    .line{
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      font-size: 13px;
+      color: rgba(245,245,247,.92);
+    }
+    .line span:first-child{ color: var(--muted); }
+    .divider{
+      height:1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+
+    .note{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .note strong{ color: rgba(245,245,247,.92); }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(var(--safeAreaBottom) + 16px);
+      background: rgba(17,17,21,.92);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow);
+      font-size: 12px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .18s ease;
+      max-width: min(520px, calc(100vw - 26px));
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .toast.show{ opacity: 1; }
+
+    .modalOverlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.64);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding: 14px;
+      z-index: 100;
+    }
+    .modalOverlay.show{ display:flex; }
+
+    .modal{
+      width: min(520px, 100%);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(12,12,14,.92);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 30px 90px rgba(0,0,0,.75);
+      overflow:hidden;
+    }
+    .modalHeader{
+      padding: 14px 14px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modalHeader .mhTitle{
+      font-weight: 950;
+      letter-spacing: .2px;
+      font-size: 14px;
+    }
+    .modalBody{
+      padding: 12px 14px 14px;
+      color: rgba(245,245,247,.92);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .modalBody ul{
+      margin: 10px 0 0 18px;
+      padding:0;
+    }
+    .modalBody li{ margin: 8px 0; }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(245,158,11,.35);
+      background: rgba(245,158,11,.10);
+      color: #fde68a;
+      margin-top: 10px;
+    }
+
+    .tiny{
+      font-size: 11px;
+      color: var(--muted2);
+      line-height:1.35;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 360px){
+      .circleWrap{ width: 250px; height: 250px; }
+      .circle{ width: 200px; height: 200px; }
+      .circle .timer{ font-size: 52px; }
+      .posture{ font-size: 26px; }
+      .btn{ min-width: 140px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand" aria-label="Encabezado">
+        <div class="title">Kegel Clínico</div>
+        <div class="subtitle">6 semanas · Calidad sobre cantidad · Dolor = detener</div>
+      </div>
+      <div class="topActions">
+        <button class="iconBtn" id="infoBtn" aria-label="Información médica">
+          <!-- info icon -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 10v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 7.2h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="cardInner">
+        <div class="grid2">
+          <div class="stat">
+            <div class="k">Día del programa</div>
+            <div class="v" id="dayLabel">—</div>
+            <div class="s" id="phaseLabel">—</div>
+          </div>
+          <div class="stat">
+            <div class="k">Sesiones hoy</div>
+            <div class="v" id="sessionsLabel">—</div>
+            <div class="s" id="nextAllowedLabel">—</div>
+          </div>
+        </div>
+
+        <div class="alert" id="restAlert" role="alert" aria-live="polite">
+          <div style="font-size:18px;line-height:1;">⛔️</div>
+          <div>
+            <div class="aTitle">Descanso Requerido</div>
+            <div class="aText">Tus músculos necesitan recuperación. Vuelve más tarde.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="center">
+        <div class="posture" id="postureBig">
+          —
+          <small id="postureSmall">Postura sugerida</small>
+        </div>
+
+        <div class="circleWrap" id="circleWrap" aria-label="Temporizador principal">
+          <div class="circle" id="circle">
+            <div class="label" id="stateLabel">LISTO</div>
+            <div class="timer" id="timerText">—</div>
+            <div class="hint" id="hintText">Respira normal. Relaja completamente al soltar.</div>
+          </div>
+        </div>
+
+        <div class="statePill" id="sessionMeta">Sesión — / — · Paso — / —</div>
+
+        <div class="row">
+          <button class="btn btnPrimary" id="unlockBtn">Iniciar Sesión</button>
+          <button class="btn" id="startBtn" disabled>Comenzar Entrenamiento</button>
+        </div>
+        <div class="row">
+          <button class="btn btnGhost" id="pauseBtn" disabled>Pausar</button>
+          <button class="btn btnDanger" id="stopBtn" disabled>Detener</button>
+        </div>
+
+        <div class="note" id="deviceNote" style="max-width: 460px;">
+          <strong>Haptics:</strong> se usa <code>navigator.vibrate()</code> si está disponible. En algunos iPhone/iOS puede no existir soporte web para vibración; el guía visual funciona igual.
+        </div>
+      </div>
+
+      <div class="sectionTitle">
+        <div class="st">Detalles clínicos de hoy</div>
+        <div class="meta" id="weekMeta">—</div>
+      </div>
+      <div class="details" id="details">
+        <div class="line"><span>Postura</span><span id="detailPosture">—</span></div>
+        <div class="line"><span>Contracción (lento)</span><span id="detailHold">—</span></div>
+        <div class="line"><span>Relajación (descanso)</span><span id="detailRest">—</span></div>
+        <div class="line"><span>Repeticiones</span><span id="detailReps">—</span></div>
+        <div class="line"><span>Toques rápidos</span><span id="detailQuick">—</span></div>
+        <div class="line"><span>Sesiones/día</span><span id="detailSPD">—</span></div>
+        <div class="divider"></div>
+        <div class="note" id="clinicalInstruction">—</div>
+        <div class="tiny" id="persistHint">Progreso guardado en este dispositivo (localStorage).</div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" aria-live="polite"></div>
+  </div>
+
+  <!-- Medical Info Modal -->
+  <div class="modalOverlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modalHeader">
+        <div class="mhTitle" id="modalTitle">Banderas Rojas · Ve al médico si:</div>
+        <button class="iconBtn" id="closeModalBtn" aria-label="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modalBody">
+        <ul>
+          <li>Sangre en la orina.</li>
+          <li>Dolor agudo testicular o pélvico.</li>
+          <li>Fiebre con dolor al orinar.</li>
+          <li>Imposibilidad de orinar (Retención).</li>
+        </ul>
+
+        <div class="badge">🛑 Si hay dolor durante el ejercicio: detén la sesión.</div>
+
+        <div class="tiny">
+          Nota técnica: la vibración web puede no estar soportada en algunos iPhone/iOS. La app no reemplaza evaluación médica.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /******************************************************************
+     * CLINICAL PLAN (NO MODIFICAR)
+     ******************************************************************/
+    const CLINICAL_PLAN = [
+      {
+        "phase": "week1",
+        "title": "Semana 1: Despertar Propioceptivo",
+        "posture": "ACOSTADO (Boca arriba o de lado)",
+        "holdSec": 3,
+        "restSec": 8,
+        "sets": 1,
+        "reps": 6,
+        "quickFlicks": 0,
+        "sessionsPerDay": 2,
+        "instruction": "Foco en localizar el músculo. Respira normal. Siente la relajación total al soltar."
+      },
+      {
+        "phase": "week2",
+        "title": "Semana 2: Consolidación",
+        "posture": "ACOSTADO (Opcional sentado si hay control)",
+        "holdSec": 5,
+        "restSec": 8,
+        "sets": 1,
+        "reps": 8,
+        "quickFlicks": 5,
+        "sessionsPerDay": 2,
+        "instruction": "Contracciones suaves. Al final, 5 toques rápidos (1s) si no hay dolor."
+      },
+      {
+        "phase": "week3",
+        "title": "Semana 3: Resistencia",
+        "posture": "SENTADO (Silla firme)",
+        "holdSec": 6,
+        "restSec": 8,
+        "sets": 1,
+        "reps": 8,
+        "quickFlicks": 8,
+        "sessionsPerDay": 2,
+        "instruction": "Espalda recta. Evita apretar glúteos. Añadimos más ritmo al final."
+      },
+      {
+        "phase": "week4",
+        "title": "Semana 4: Bipedestación",
+        "posture": "MIXTO (1ª Sentado, 2ª De Pie)",
+        "holdSec": 8,
+        "restSec": 8,
+        "sets": 1,
+        "reps": 8,
+        "quickFlicks": 10,
+        "sessionsPerDay": 3,
+        "instruction": "De pie: Rodillas semi-flexionadas. Si sientes pesadez, vuelve a sentarte."
+      },
+      {
+        "phase": "week5",
+        "title": "Semana 5: Carga Funcional",
+        "posture": "DE PIE (Principalmente)",
+        "holdSec": 10,
+        "restSec": 10,
+        "sets": 1,
+        "reps": 10,
+        "quickFlicks": 10,
+        "sessionsPerDay": 3,
+        "instruction": "Objetivo clínico. Relajación total (10s) obligatoria entre contracciones."
+      },
+      {
+        "phase": "week6",
+        "title": "Semana 6: Integración ('The Knack')",
+        "posture": "DE PIE / FUNCIONAL",
+        "holdSec": 10,
+        "restSec": 12,
+        "sets": 1,
+        "reps": 8,
+        "quickFlicks": 10,
+        "sessionsPerDay": 2,
+        "instruction": "Mantenimiento. Usa 'The Knack': contrae antes de toser o levantar peso."
+      }
+    ];
+
+    /******************************************************************
+     * STATE + STORAGE
+     ******************************************************************/
+    const STORAGE_KEY = "kegel_clinical_v1";
+    const THREE_HOURS_MS = 3 * 60 * 60 * 1000;
+
+    const defaultState = () => ({
+      startDateISO: null,             // YYYY-MM-DD (local)
+      lastTrainAt: null,              // ms timestamp
+      sessionsByDate: {},             // { "YYYY-MM-DD": number }
+      lastKnownDay: null,             // number
+      lastKnownPhase: null,           // string
+      vibrationUnlocked: false         // boolean
+    });
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return defaultState();
+        const parsed = JSON.parse(raw);
+        return { ...defaultState(), ...parsed };
+      }catch(e){
+        return defaultState();
+      }
+    }
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    }
+
+    function resetProgram(){
+      appState = defaultState();
+      saveState();
+      toast("Programa reiniciado.");
+      updateUI();
+    }
+
+    function localISODate(d = new Date()){
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function formatTime(ms){
+      if(!ms) return "—";
+      try{
+        return new Intl.DateTimeFormat(undefined, { hour:"2-digit", minute:"2-digit" }).format(new Date(ms));
+      }catch{
+        const d = new Date(ms);
+        return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+      }
+    }
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+    let appState = loadState();
+
+    /******************************************************************
+     * PWA MANIFEST (SINGLE FILE BEST-EFFORT)
+     ******************************************************************/
+    (function setupManifest(){
+      const iconSvg = `data:image/svg+xml,` + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+          <defs>
+            <radialGradient id="g" cx="50%" cy="35%" r="70%">
+              <stop offset="0%" stop-color="#22c55e"/>
+              <stop offset="55%" stop-color="#0ea5e9"/>
+              <stop offset="100%" stop-color="#f97316"/>
+            </radialGradient>
+          </defs>
+          <rect width="512" height="512" rx="112" fill="#000"/>
+          <circle cx="256" cy="256" r="176" fill="url(#g)" opacity=".92"/>
+          <path d="M176 284c32 48 128 48 160 0" stroke="#fff" stroke-width="24" stroke-linecap="round" fill="none" opacity=".85"/>
+          <path d="M208 200h96" stroke="#fff" stroke-width="24" stroke-linecap="round" opacity=".85"/>
+        </svg>`
+      );
+
+      const manifest = {
+        name: "Kegel Clínico (6 semanas)",
+        short_name: "Kegel",
+        start_url: "./",
+        scope: "./",
+        display: "standalone",
+        background_color: "#000000",
+        theme_color: "#000000",
+        description: "Protocolo clínico de 6 semanas · calidad sobre cantidad · anti-hipertonía",
+        icons: [
+          { src: iconSvg, sizes: "192x192", type: "image/svg+xml" },
+          { src: iconSvg, sizes: "512x512", type: "image/svg+xml" }
+        ]
+      };
+
+      const manifestUrl = "data:application/manifest+json," + encodeURIComponent(JSON.stringify(manifest));
+      document.getElementById("manifestLink").setAttribute("href", manifestUrl);
+    })();
+
+    /******************************************************************
+     * SERVICE WORKER (BEST-EFFORT SINGLE FILE VIA BLOB)
+     * Nota: algunos navegadores pueden bloquear el registro con blob:.
+     ******************************************************************/
+    (function registerSW(){
+      if(!("serviceWorker" in navigator)) return;
+
+      const swCode = `
+        const CACHE = "kegel-clinical-v1";
+        self.addEventListener("install", (e) => {
+          self.skipWaiting();
+          e.waitUntil(caches.open(CACHE).then(c => c.addAll(["./"])).catch(()=>{}));
+        });
+        self.addEventListener("activate", (e) => {
+          e.waitUntil((async () => {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => (k === CACHE ? null : caches.delete(k))));
+            await self.clients.claim();
+          })());
+        });
+        self.addEventListener("fetch", (e) => {
+          const req = e.request;
+          if(req.method !== "GET") return;
+          e.respondWith((async () => {
+            const cache = await caches.open(CACHE);
+            const cached = await cache.match(req, { ignoreSearch: true });
+            if(cached) return cached;
+            try{
+              const res = await fetch(req);
+              if(res && res.ok && (new URL(req.url)).origin === self.location.origin){
+                cache.put(req, res.clone()).catch(()=>{});
+              }
+              return res;
+            }catch{
+              return cached || new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" }});
+            }
+          })());
+        });
+      `;
+
+      try{
+        const blob = new Blob([swCode], { type: "text/javascript" });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl, { scope: "./" }).catch(()=>{});
+      }catch(_){}
+    })();
+
+    /******************************************************************
+     * HAPTICS (VIBRATE)
+     ******************************************************************/
+    function canVibrate(){
+      return typeof navigator !== "undefined" && typeof navigator.vibrate === "function";
+    }
+
+    function vibrate(pattern){
+      if(!appState.vibrationUnlocked) return;
+      if(!canVibrate()) return;
+      try{ navigator.vibrate(pattern); }catch(_){}
+    }
+
+    // Distinct patterns
+    const VIB_SLOW_CONTRACT = [25, 40, 25];
+    const VIB_SLOW_RELAX    = [12];
+    const VIB_QUICK         = [8, 18, 8, 18, 8];
+
+    /******************************************************************
+     * SESSION ENGINE
+     ******************************************************************/
+    const ui = {
+      dayLabel: document.getElementById("dayLabel"),
+      phaseLabel: document.getElementById("phaseLabel"),
+      sessionsLabel: document.getElementById("sessionsLabel"),
+      nextAllowedLabel: document.getElementById("nextAllowedLabel"),
+      restAlert: document.getElementById("restAlert"),
+
+      postureBig: document.getElementById("postureBig"),
+      postureSmall: document.getElementById("postureSmall"),
+
+      circleWrap: document.getElementById("circleWrap"),
+      stateLabel: document.getElementById("stateLabel"),
+      timerText: document.getElementById("timerText"),
+      hintText: document.getElementById("hintText"),
+      sessionMeta: document.getElementById("sessionMeta"),
+
+      unlockBtn: document.getElementById("unlockBtn"),
+      startBtn: document.getElementById("startBtn"),
+      pauseBtn: document.getElementById("pauseBtn"),
+      stopBtn: document.getElementById("stopBtn"),
+
+      weekMeta: document.getElementById("weekMeta"),
+      detailPosture: document.getElementById("detailPosture"),
+      detailHold: document.getElementById("detailHold"),
+      detailRest: document.getElementById("detailRest"),
+      detailReps: document.getElementById("detailReps"),
+      detailQuick: document.getElementById("detailQuick"),
+      detailSPD: document.getElementById("detailSPD"),
+      clinicalInstruction: document.getElementById("clinicalInstruction"),
+
+      infoBtn: document.getElementById("infoBtn"),
+      modalOverlay: document.getElementById("modalOverlay"),
+      closeModalBtn: document.getElementById("closeModalBtn"),
+
+      toast: document.getElementById("toast"),
+      deviceNote: document.getElementById("deviceNote")
+    };
+
+    let wakeLock = null;
+    async function requestWakeLock(){
+      try{
+        if("wakeLock" in navigator && navigator.wakeLock?.request){
+          wakeLock = await navigator.wakeLock.request("screen");
+        }
+      }catch(_){}
+    }
+    async function releaseWakeLock(){
+      try{
+        if(wakeLock){ await wakeLock.release(); wakeLock = null; }
+      }catch(_){}
+    }
+
+    function toast(msg){
+      ui.toast.textContent = msg;
+      ui.toast.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => ui.toast.classList.remove("show"), 2200);
+    }
+
+    function computeProgramDay(){
+      const todayISO = localISODate();
+      if(!appState.startDateISO){
+        appState.startDateISO = todayISO;
+        saveState();
+      }
+      // Compute day difference based on local dates
+      const start = new Date(appState.startDateISO + "T00:00:00");
+      const today = new Date(todayISO + "T00:00:00");
+      const diffDays = Math.floor((today - start) / 86400000);
+      const dayNum = diffDays + 1;
+      return clamp(dayNum, 1, 42);
+    }
+
+    function getPlanForDay(dayNum){
+      const idx = clamp(Math.floor((dayNum - 1) / 7), 0, 5);
+      return CLINICAL_PLAN[idx];
+    }
+
+    function sessionsDoneToday(){
+      const key = localISODate();
+      return Number(appState.sessionsByDate?.[key] || 0);
+    }
+
+    function setSessionsDoneToday(n){
+      const key = localISODate();
+      appState.sessionsByDate[key] = n;
+      saveState();
+    }
+
+    function isRestBlocked(){
+      if(!appState.lastTrainAt) return false;
+      const delta = Date.now() - appState.lastTrainAt;
+      return delta < THREE_HOURS_MS;
+    }
+
+    function msToNextAllowed(){
+      if(!appState.lastTrainAt) return 0;
+      const delta = Date.now() - appState.lastTrainAt;
+      return clamp(THREE_HOURS_MS - delta, 0, THREE_HOURS_MS);
+    }
+
+    function humanizeMs(ms){
+      const totalMin = Math.ceil(ms / 60000);
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      if(h <= 0) return `${m} min`;
+      return `${h} h ${m} min`;
+    }
+
+    function suggestPosture(plan, nextSessionIndex){
+      // nextSessionIndex: 1..sessionsPerDay (suggestion only)
+      if(plan.phase === "week4"){
+        // "MIXTO (1ª Sentado, 2ª De Pie)" — suggestion: session 1 seated, others standing
+        return nextSessionIndex === 1 ? "SENTADO" : "DE PIE";
+      }
+      const p = String(plan.posture || "").toUpperCase();
+      if(p.includes("ACOSTADO")) return "ACOSTADO";
+      if(p.includes("SENTADO")) return "SENTADO";
+      if(p.includes("DE PIE") || p.includes("FUNCIONAL") || p.includes("BIPED")) return "DE PIE";
+      return "SENTADO";
+    }
+
+    function setStateVisual(kind, label, hint){
+      // kind: "idle" | "contract" | "relax" | "quick"
+      let color = getComputedStyle(document.documentElement).getPropertyValue("--blue").trim();
+      if(kind === "contract") color = getComputedStyle(document.documentElement).getPropertyValue("--green").trim();
+      if(kind === "relax")    color = getComputedStyle(document.documentElement).getPropertyValue("--blue").trim();
+      if(kind === "quick")    color = getComputedStyle(document.documentElement).getPropertyValue("--orange").trim();
+
+      document.documentElement.style.setProperty("--stateColor", color);
+      ui.stateLabel.textContent = label;
+      ui.hintText.textContent = hint;
+    }
+
+    function setProgress(p){
+      document.documentElement.style.setProperty("--progress", String(clamp(p, 0, 1)));
+    }
+
+    // Build session steps from plan
+    function buildSteps(plan){
+      const steps = [];
+      const sets = Number(plan.sets || 1);
+      const reps = Number(plan.reps || 0);
+      const hold = Number(plan.holdSec || 0);
+      const rest = Number(plan.restSec || 0);
+      const quick = Number(plan.quickFlicks || 0);
+
+      for(let s=1; s<=sets; s++){
+        for(let r=1; r<=reps; r++){
+          steps.push({
+            kind: "contract",
+            label: "CONTRAER",
+            seconds: hold,
+            hint: "Sube suave. No aprietes glúteos ni abdomen.",
+            vibrate: VIB_SLOW_CONTRACT
+          });
+          steps.push({
+            kind: "relax",
+            label: "RELAX",
+            seconds: rest,
+            hint: "Suelta por completo. Descanso clínico (anti-hipertonía).",
+            vibrate: VIB_SLOW_RELAX
+          });
+        }
+
+        if(quick > 0){
+          for(let q=1; q<=quick; q++){
+            steps.push({
+              kind: "quick",
+              label: "RÁPIDO",
+              seconds: 1,
+              hint: "Toque rápido (1s). Mantén calidad, sin dolor.",
+              vibrate: VIB_QUICK
+            });
+            steps.push({
+              kind: "relax",
+              label: "RELAX",
+              seconds: 1,
+              hint: "Suelta completamente entre toques.",
+              vibrate: VIB_SLOW_RELAX
+            });
+          }
+        }
+      }
+      return steps;
+    }
+
+    let session = {
+      running: false,
+      paused: false,
+      steps: [],
+      stepIndex: 0,
+      stepStartedAt: 0,
+      stepEndsAt: 0,
+      rafId: 0,
+      lastTickSecShown: null
+    };
+
+    function stopSessionUI(resetTimer=true){
+      session.running = false;
+      session.paused = false;
+      cancelAnimationFrame(session.rafId);
+      session.rafId = 0;
+
+      ui.pauseBtn.disabled = true;
+      ui.stopBtn.disabled = true;
+      ui.startBtn.disabled = true; // will be updated by updateUI()
+      ui.pauseBtn.textContent = "Pausar";
+
+      setProgress(0);
+      setStateVisual("idle", "LISTO", "Respira normal. Relaja completamente al soltar.");
+      ui.timerText.textContent = resetTimer ? "—" : ui.timerText.textContent;
+      ui.sessionMeta.textContent = "Sesión — / — · Paso — / —";
+
+      releaseWakeLock();
+      updateUI();
+    }
+
+    function finishSession(){
+      const done = sessionsDoneToday();
+      setSessionsDoneToday(done + 1);
+      appState.lastTrainAt = Date.now();
+      const dayNum = computeProgramDay();
+      const plan = getPlanForDay(dayNum);
+      appState.lastKnownDay = dayNum;
+      appState.lastKnownPhase = plan.phase;
+      saveState();
+
+      toast("Sesión completada. Descanso recomendado (3 horas).");
+      stopSessionUI(true);
+    }
+
+    function startSession(){
+      const dayNum = computeProgramDay();
+      const plan = getPlanForDay(dayNum);
+
+      // Block if rest required
+      if(isRestBlocked()){
+        toast("Descanso requerido: vuelve más tarde.");
+        updateUI();
+        return;
+      }
+
+      // Block if daily sessions completed
+      const done = sessionsDoneToday();
+      if(done >= plan.sessionsPerDay){
+        toast("Sesiones del día completadas.");
+        updateUI();
+        return;
+      }
+
+      session.steps = buildSteps(plan);
+      session.stepIndex = 0;
+      session.running = true;
+      session.paused = false;
+      session.lastTickSecShown = null;
+
+      ui.pauseBtn.disabled = false;
+      ui.stopBtn.disabled = false;
+      ui.startBtn.disabled = true;
+      ui.pauseBtn.textContent = "Pausar";
+
+      // Visual posture suggestion stays visible
+      requestWakeLock();
+
+      // Run first step
+      beginStep(0);
+      tick();
+    }
+
+    function beginStep(idx){
+      session.stepIndex = idx;
+      const step = session.steps[idx];
+      const now = performance.now();
+      session.stepStartedAt = now;
+      session.stepEndsAt = now + (step.seconds * 1000);
+      session.lastTickSecShown = null;
+
+      // Set visuals
+      if(step.kind === "contract") setStateVisual("contract", step.label, step.hint);
+      else if(step.kind === "relax") setStateVisual("relax", step.label, step.hint);
+      else if(step.kind === "quick") setStateVisual("quick", step.label, step.hint);
+      else setStateVisual("idle", "LISTO", "");
+
+      // Haptics at step boundary
+      vibrate(step.vibrate);
+
+      // Update meta
+      updateSessionMeta();
+    }
+
+    function updateSessionMeta(){
+      const dayNum = computeProgramDay();
+      const plan = getPlanForDay(dayNum);
+      const done = sessionsDoneToday();
+      const total = plan.sessionsPerDay;
+      const currentSessionNumber = done + 1;
+      const stepNo = session.stepIndex + 1;
+      const stepTotal = session.steps.length;
+      ui.sessionMeta.textContent = `Sesión ${currentSessionNumber} / ${total} · Paso ${stepNo} / ${stepTotal}`;
+    }
+
+    function tick(){
+      if(!session.running){
+        cancelAnimationFrame(session.rafId);
+        session.rafId = 0;
+        return;
+      }
+      session.rafId = requestAnimationFrame(tick);
+
+      if(session.paused){
+        return;
+      }
+
+      const now = performance.now();
+      const step = session.steps[session.stepIndex];
+      const totalMs = step.seconds * 1000;
+      const leftMs = session.stepEndsAt - now;
+      const leftSec = Math.max(0, Math.ceil(leftMs / 1000));
+
+      // Update timer only when changes (reduces jitter)
+      if(session.lastTickSecShown !== leftSec){
+        session.lastTickSecShown = leftSec;
+        ui.timerText.textContent = String(leftSec);
+      }
+
+      // Progress ring within current step
+      const elapsed = clamp((now - session.stepStartedAt) / totalMs, 0, 1);
+      setProgress(elapsed);
+
+      if(leftMs <= 0){
+        // Next step or finish
+        const next = session.stepIndex + 1;
+        if(next >= session.steps.length){
+          finishSession();
+        }else{
+          beginStep(next);
+        }
+      }
+    }
+
+    function togglePause(){
+      if(!session.running) return;
+      session.paused = !session.paused;
+      if(session.paused){
+        ui.pauseBtn.textContent = "Reanudar";
+        // Freeze progress (keep current values)
+      }else{
+        // Adjust step timing to resume correctly
+        const now = performance.now();
+        const step = session.steps[session.stepIndex];
+        const currentlyShown = Number(ui.timerText.textContent) || 0;
+        session.stepStartedAt = now;
+        session.stepEndsAt = now + (currentlyShown * 1000);
+        session.lastTickSecShown = null;
+        ui.pauseBtn.textContent = "Pausar";
+        vibrate([10]); // subtle cue
+      }
+    }
+
+    function hardStop(){
+      if(!session.running){
+        updateUI();
+        return;
+      }
+      // Safety-first: stopping is allowed any time.
+      toast("Sesión detenida.");
+      stopSessionUI(true);
+    }
+
+    /******************************************************************
+     * UI UPDATE
+     ******************************************************************/
+    function updateUI(){
+      const dayNum = computeProgramDay();
+      const plan = getPlanForDay(dayNum);
+
+      // Persist last known day/phase (requested)
+      appState.lastKnownDay = dayNum;
+      appState.lastKnownPhase = plan.phase;
+      saveState();
+
+      const done = sessionsDoneToday();
+      const total = plan.sessionsPerDay;
+      const restBlocked = isRestBlocked();
+      const nextMs = msToNextAllowed();
+
+      ui.dayLabel.textContent = `Día ${dayNum} / 42`;
+      ui.phaseLabel.textContent = plan.title;
+
+      ui.sessionsLabel.textContent = `${done} / ${total}`;
+      if(restBlocked){
+        ui.nextAllowedLabel.textContent = `Vuelve en ${humanizeMs(nextMs)}`;
+      }else{
+        ui.nextAllowedLabel.textContent = appState.lastTrainAt ? `Última: ${formatTime(appState.lastTrainAt)}` : "Aún sin sesiones";
+      }
+
+      ui.restAlert.classList.toggle("show", restBlocked);
+
+      // Big posture suggestion
+      const nextSessionIdx = clamp(done + 1, 1, total);
+      const suggested = suggestPosture(plan, nextSessionIdx);
+      ui.postureBig.childNodes[0].nodeValue = suggested;
+      ui.postureSmall.textContent = plan.posture;
+
+      // Details
+      ui.weekMeta.textContent = plan.phase.toUpperCase();
+      ui.detailPosture.textContent = plan.posture;
+      ui.detailHold.textContent = `${plan.holdSec}s`;
+      ui.detailRest.textContent = `${plan.restSec}s`;
+      ui.detailReps.textContent = `${plan.sets} set · ${plan.reps} reps`;
+      ui.detailQuick.textContent = String(plan.quickFlicks);
+      ui.detailSPD.textContent = String(plan.sessionsPerDay);
+      ui.clinicalInstruction.textContent = plan.instruction;
+
+      // Device note visibility
+      ui.deviceNote.style.display = (!canVibrate() ? "block" : "block");
+
+      // Buttons logic
+      ui.unlockBtn.textContent = appState.vibrationUnlocked ? "Sesión Iniciada" : "Iniciar Sesión";
+      ui.unlockBtn.disabled = !!appState.vibrationUnlocked;
+
+      if(session.running){
+        ui.startBtn.disabled = true;
+        ui.pauseBtn.disabled = false;
+        ui.stopBtn.disabled = false;
+        return;
+      }
+
+      // Not running
+      ui.pauseBtn.disabled = true;
+      ui.stopBtn.disabled = true;
+
+      const completedAllToday = done >= total;
+      if(completedAllToday){
+        ui.startBtn.disabled = true;
+        ui.startBtn.textContent = "Completado por hoy";
+      }else if(restBlocked){
+        ui.startBtn.disabled = true;
+        ui.startBtn.textContent = "Descanso requerido";
+      }else{
+        ui.startBtn.disabled = false;
+        ui.startBtn.textContent = "Comenzar Entrenamiento";
+      }
+
+      // If day 42 completed and sessions done today also completed, offer restart via long-press gesture (no extra UI)
+      if(dayNum >= 42 && completedAllToday){
+        ui.phaseLabel.textContent = `${plan.title} · Programa finalizado`;
+        ui.nextAllowedLabel.textContent = "Mantén presionado “Iniciar Sesión” para reiniciar";
+      }
+    }
+
+    /******************************************************************
+     * EVENTS
+     ******************************************************************/
+    ui.unlockBtn.addEventListener("click", () => {
+      // User gesture: "unlock" best-effort for vibration
+      appState.vibrationUnlocked = true;
+      saveState();
+      if(canVibrate()){
+        // short "handshake"
+        try{ navigator.vibrate([10, 20, 10]); }catch(_){}
+        toast("Haptics habilitados (si tu dispositivo lo soporta).");
+      }else{
+        toast("Tu navegador no expone vibración. Guía visual activa.");
+      }
+      updateUI();
+    });
+
+    // Easter-gesture: long press unlock button to reset when program finished
+    (function setupLongPressReset(){
+      let t = null;
+      ui.unlockBtn.addEventListener("touchstart", () => {
+        const dayNum = computeProgramDay();
+        const plan = getPlanForDay(dayNum);
+        const done = sessionsDoneToday();
+        if(dayNum >= 42 && done >= plan.sessionsPerDay){
+          t = setTimeout(resetProgram, 1200);
+        }
+      }, { passive:true });
+      ui.unlockBtn.addEventListener("touchend", () => { if(t) clearTimeout(t); t=null; }, { passive:true });
+      ui.unlockBtn.addEventListener("mousedown", () => {
+        const dayNum = computeProgramDay();
+        const plan = getPlanForDay(dayNum);
+        const done = sessionsDoneToday();
+        if(dayNum >= 42 && done >= plan.sessionsPerDay){
+          t = setTimeout(resetProgram, 1200);
+        }
+      });
+      ui.unlockBtn.addEventListener("mouseup", () => { if(t) clearTimeout(t); t=null; });
+      ui.unlockBtn.addEventListener("mouseleave", () => { if(t) clearTimeout(t); t=null; });
+    })();
+
+    ui.startBtn.addEventListener("click", () => {
+      if(isRestBlocked()){
+        // Required text (exact meaning)
+        alert("⛔️ Descanso Requerido: Tus músculos necesitan recuperación. Vuelve más tarde.");
+        updateUI();
+        return;
+      }
+      startSession();
+    });
+
+    ui.pauseBtn.addEventListener("click", () => togglePause());
+    ui.stopBtn.addEventListener("click", () => hardStop());
+
+    ui.infoBtn.addEventListener("click", () => ui.modalOverlay.classList.add("show"));
+    ui.closeModalBtn.addEventListener("click", () => ui.modalOverlay.classList.remove("show"));
+    ui.modalOverlay.addEventListener("click", (e) => {
+      if(e.target === ui.modalOverlay) ui.modalOverlay.classList.remove("show");
+    });
+
+    // Keep UI accurate over time (rest countdown)
+    setInterval(() => {
+      if(!session.running) updateUI();
+    }, 30 * 1000);
+
+    document.addEventListener("visibilitychange", () => {
+      if(document.hidden){
+        // Pause safely when app goes background during a session
+        if(session.running && !session.paused){
+          session.paused = true;
+          ui.pauseBtn.textContent = "Reanudar";
+          toast("Pausado (app en segundo plano).");
+        }
+        releaseWakeLock();
+      }else{
+        if(session.running){
+          requestWakeLock();
+        }
+        updateUI();
+      }
+    });
+
+    // Initial paint
+    (function init(){
+      updateUI();
+      setStateVisual("idle", "LISTO", "Respira normal. Relaja completamente al soltar.");
+      ui.timerText.textContent = "—";
+
+      // If rest-blocked, also show required alert text in UI (not modal)
+      if(isRestBlocked()){
+        ui.restAlert.classList.add("show");
+      }
+
+      // If program day advanced, nothing else needed; sessionsByDate is date-keyed.
+      // If user never started, ensure startDate exists.
+      computeProgramDay();
+      saveState();
+    })();
+  </script>
+</body>
+</html>
